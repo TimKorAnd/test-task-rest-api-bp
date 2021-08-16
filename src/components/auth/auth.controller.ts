@@ -2,7 +2,7 @@ import { Body, Controller, Post, UseGuards, Request, Get } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { TokenAuthGuard } from './guards/token-auth.guard';
+//import { TokenAuthGuard } from './guards/token-auth.guard';
 import { TransformEmailToLowerCaseAndHashPasswordPipe } from './pipes/auth.signup-transform.pipe';
 
 @Controller()
@@ -24,12 +24,5 @@ export class AuthController {
     return req.user;
   }
 
-  @Get('info')
-  @UseGuards(TokenAuthGuard)
-  info(@Request() req) {
-    return {
-      id: req.user.id_user,
-      id_type: req.user.id_type,
-    };
-  }
+
 }

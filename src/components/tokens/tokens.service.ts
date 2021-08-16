@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TokensRepository } from '../repository/tokens.repository';
+import { TokensRepository } from './tokens.repository';
 import { UpdateTokenDto } from './dto/update-token.dto';
 import { randomBytes } from 'crypto';
 import { Types } from 'mongoose';
@@ -12,7 +12,7 @@ export class TokensService {
 
   private static readonly MILISECONDS_IN_MINUTE: number = 60000;
   constructor(
-  private readonly tokenRepository: TokensRepository,
+  private readonly tokensRepository: TokensRepository,
   private readonly configService: ConfigService,
 ) { }
 
@@ -24,7 +24,7 @@ export class TokensService {
       expireAt: this.getDateWithAddedMinutes(new Date(), tokenLifetimeInMinutes),
     }
 
-    return this.tokenRepository.create(tokenCreate);
+    return this.tokensRepository.create(tokenCreate);
   }
 
   public getDateWithAddedMinutes(date: Date, minutes: number): Date {
@@ -36,11 +36,11 @@ export class TokensService {
   }
 
   findById(id: Types.ObjectId) { // TODO set types
-    return this.tokenRepository.findById(id);
+    return this.tokensRepository.findById(id);
   }
 
   findOne(fieldValuePair) { // TODO set types
-    return this.tokenRepository.findOne(fieldValuePair);
+    return this.tokensRepository.findOne(fieldValuePair);
   }
 
   update(id: number, updateTokenDto: UpdateTokenDto) {
@@ -49,5 +49,9 @@ export class TokensService {
 
   remove(id: number) {
     return `This action removes a #${id} token`;
+  }
+
+  deleteMany(arg) {
+    this.tokensRepository.deleteMany(arg);
   }
 }

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
 import { Types } from 'mongoose';
-import { TokensRepository } from '../repository/tokens.repository';
+import { TokensRepository } from '../tokens/tokens.repository';
 import { IToken } from '../tokens/interfaces/token.interface';
 import { TokensService } from '../tokens/tokens.service';
 import { IUser } from '../users/interfaces/user.interface';
@@ -12,7 +12,7 @@ import { IAuthUserSignup } from './interfaces/auth.user-signup.interface';
 
 @Injectable()
 export class AuthService {
-    
+
     constructor(
         private readonly usersService: UsersService,
         private readonly tokenService: TokensService,
@@ -73,18 +73,18 @@ export class AuthService {
         if (!request.headers?.['authorization']) {
             throw new UnauthorizedException();
         }
-        
-        const bearerToken = request.headers?.['authorization'].slice(7); 
+
+        const bearerToken = request.headers?.['authorization'].slice(7);
         if (!bearerToken) {
             throw new UnauthorizedException();
         }
-       
+
         // is token presents in db?
         const tokenFromDB = await this.tokenService.findOne({ token: bearerToken });
         if (!tokenFromDB) {
             throw new UnauthorizedException();
         }
-        
+
         // is user corresponding to this token present
         const userFromDB = await this.usersService.findOne({ token_id: tokenFromDB._id });
         if (!userFromDB) {
@@ -92,16 +92,19 @@ export class AuthService {
             throw new UnauthorizedException();
         }
 
-        // hm, do I save token_id to user? or compare? or redundant?
-        if (userFromDB.token_id.toString() !== tokenFromDB._id.toString()) {
+        // hm, authorized only where cross relation user <-> token is duplexy correct, (or redundant?)
+        if ((userFromDB.token_id?.toString() !== tokenFromDB._id.toString()) ||
+         (userFromDB._id.toString() !== tokenFromDB.user_id?.toString())) {
             tokenFromDB.remove();
+            userFromDB.token_id = null;
+            userFromDB.save();
             throw new UnauthorizedException();
         }
-        
+
         tokenFromDB.expireAt = this.tokenService.getDateWithAddedMinutes(new Date(), this.configService.get<number>('TOKEN_LIFETIME_IN_MINUTES'))
         tokenFromDB.save();
         request.user = userFromDB;
-        
+
         return true;
     }
 }

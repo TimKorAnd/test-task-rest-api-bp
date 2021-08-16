@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, Schema } from 'mongoose';
-import { ITokenCreate } from '../tokens/interfaces/token-create.interface';
-import { IToken } from '../tokens/interfaces/token.interface';
-import { Token } from '../tokens/schemas/token.schema';
+import { ITokenCreate } from './interfaces/token-create.interface';
+import { IToken } from './interfaces/token.interface';
+import { Token } from './schemas/token.schema';
 
 @Injectable()
 export class TokensRepository {
@@ -31,5 +31,11 @@ export class TokensRepository {
 
   remove(id: number) {
     return `This action removes a #${id} repository`;
+  }
+
+  deleteMany(arg) {
+    console.log('delete all!!!!' + arg)
+    console.log(arg)
+    this.tokenModel.deleteMany({});
   }
 }

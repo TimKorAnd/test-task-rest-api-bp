@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { IAuthUserSignup } from '../auth/interfaces/auth.user-signup.interface';
-import { UsersRepository } from '../repository/users.repository';
+import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserIdTypeEnum } from './enums/user.id-type.enum';
@@ -12,7 +12,7 @@ import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
- 
+
   constructor(/* @InjectModel(User.name) private UserModel: Model<IUser>, */
     private readonly userRepository: UsersRepository,
   ) { }
@@ -26,7 +26,7 @@ export class UsersService {
     }
 
     return this.userRepository.create(userCreate)
-    
+
   }
 
   // TODO in helpers or another way for check?
@@ -37,11 +37,11 @@ export class UsersService {
   private getUserIdType(userSignup: IAuthUserSignup): UserIdTypeEnum {
     if (this.isEmail(userSignup.id)) {
       return UserIdTypeEnum.EMAIL;
-    } 
+    }
     return UserIdTypeEnum.PHONE;
   }
 
-  async findOne(fieldValuePair: {[key: string]: any}): Promise<IUser> {
+  async findOne(fieldValuePair: { [key: string]: any }): Promise<IUser> {
     console.log(fieldValuePair);
     /* const v: string = Object.values(fieldValuePair)[0] as string;
     const value = Types.ObjectId(v);
@@ -49,15 +49,11 @@ export class UsersService {
     const key = Object.keys(fieldValuePair)[0] as string;
     console.log({key: value}); */
     return await this.userRepository.findOne(fieldValuePair);
-}
+  }
 
   findAll() {
     return `This action returns all users`;
   }
-
-  // findOne(id: string) {
-  //   return `This action returns a #${id} user`;
-  // }
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;

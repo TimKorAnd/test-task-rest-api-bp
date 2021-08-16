@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types } from 'mongoose';
-import { IUserCreate } from '../users/interfaces/user-create.interface';
-import { IUser } from '../users/interfaces/user.interface';
-import { User } from '../users/schemas/user.schema';
+import { IUserCreate } from './interfaces/user-create.interface';
+import { IUser } from './interfaces/user.interface';
+import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UsersRepository {
@@ -28,4 +28,5 @@ export class UsersRepository {
   remove(id: number) {
     return `This action removes a #${id} repository`;
   }
+
 }
