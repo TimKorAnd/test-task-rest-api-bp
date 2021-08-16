@@ -41,7 +41,7 @@ export class UsersService {
     return UserIdTypeEnum.PHONE;
   }
 
-  async findOne(fieldValuePair: {[key: string]: string}): Promise<IUser> {
+  async findOne(fieldValuePair: {[key: string]: any}): Promise<IUser> {
     console.log(fieldValuePair);
     /* const v: string = Object.values(fieldValuePair)[0] as string;
     const value = Types.ObjectId(v);

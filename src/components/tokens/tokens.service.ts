@@ -13,7 +13,7 @@ export class TokensService {
   private static readonly MILISECONDS_IN_MINUTE: number = 60000;
   constructor(
   private readonly tokenRepository: TokensRepository,
-  private readonly configService: ConfigService
+  private readonly configService: ConfigService,
 ) { }
 
   create(_id: Types.ObjectId, tokenLifetimeInMinutes = this.configService.get<number>('TOKEN_LIFETIME_IN_MINUTES')) { 
@@ -27,7 +27,7 @@ export class TokensService {
     return this.tokenRepository.create(tokenCreate);
   }
 
-  private getDateWithAddedMinutes(date: Date, minutes: number) {
+  public getDateWithAddedMinutes(date: Date, minutes: number): Date {
     return new Date(date.getTime() + minutes * TokensService.MILISECONDS_IN_MINUTE);
 }
 

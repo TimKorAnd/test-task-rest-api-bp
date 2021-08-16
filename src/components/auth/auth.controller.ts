@@ -1,7 +1,8 @@
-import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { TokenAuthGuard } from './guards/token-auth.guard';
 import { TransformEmailToLowerCaseAndHashPasswordPipe } from './pipes/auth.signup-transform.pipe';
 
 @Controller()
@@ -18,10 +19,17 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('signin')
-  //signin(@Body(TransformEmailToLowerCaseAndHashPasswordPipe) signinDto: SigninDto) {
   async signin(@Request() req) {
     console.log('controller signin');
     return req.user;
-    //return this.authService.signin(signinDto);
+  }
+
+  @Get('info')
+  @UseGuards(TokenAuthGuard)
+  info(@Request() req) {
+    return {
+      id: req.user.id_user,
+      id_type: req.user.id_type,
+    };
   }
 }

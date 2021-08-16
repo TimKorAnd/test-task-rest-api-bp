@@ -1,18 +1,22 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
 import { Types } from 'mongoose';
 import { TokensRepository } from '../repository/tokens.repository';
 import { IToken } from '../tokens/interfaces/token.interface';
 import { TokensService } from '../tokens/tokens.service';
 import { IUser } from '../users/interfaces/user.interface';
+import { User } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { IAuthUserSignup } from './interfaces/auth.user-signup.interface';
 
 @Injectable()
 export class AuthService {
+    
     constructor(
         private readonly usersService: UsersService,
         private readonly tokenService: TokensService,
+        private readonly configService: ConfigService,
 
     ) { }
 
@@ -62,5 +66,42 @@ export class AuthService {
             user_id: user.id_user,
             token: token.token,
         }
+    }
+
+    public async validateRequest(request: any): Promise<boolean> {
+        // is token present in bearer header?
+        if (!request.headers?.['authorization']) {
+            throw new UnauthorizedException();
+        }
+        
+        const bearerToken = request.headers?.['authorization'].slice(7); 
+        if (!bearerToken) {
+            throw new UnauthorizedException();
+        }
+       
+        // is token presents in db?
+        const tokenFromDB = await this.tokenService.findOne({ token: bearerToken });
+        if (!tokenFromDB) {
+            throw new UnauthorizedException();
+        }
+        
+        // is user corresponding to this token present
+        const userFromDB = await this.usersService.findOne({ token_id: tokenFromDB._id });
+        if (!userFromDB) {
+            tokenFromDB.remove();
+            throw new UnauthorizedException();
+        }
+
+        // hm, do I save token_id to user? or compare? or redundant?
+        if (userFromDB.token_id.toString() !== tokenFromDB._id.toString()) {
+            tokenFromDB.remove();
+            throw new UnauthorizedException();
+        }
+        
+        tokenFromDB.expireAt = this.tokenService.getDateWithAddedMinutes(new Date(), this.configService.get<number>('TOKEN_LIFETIME_IN_MINUTES'))
+        tokenFromDB.save();
+        request.user = userFromDB;
+        
+        return true;
     }
 }
