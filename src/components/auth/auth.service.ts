@@ -1,12 +1,9 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
-import { Types } from 'mongoose';
-import { TokensRepository } from '../tokens/tokens.repository';
 import { IToken } from '../tokens/interfaces/token.interface';
 import { TokensService } from '../tokens/tokens.service';
 import { IUser } from '../users/interfaces/user.interface';
-import { User } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { IAuthUserSignup } from './interfaces/auth.user-signup.interface';
 
@@ -34,9 +31,7 @@ export class AuthService {
 
     async getValidUser(id_user: string, pass: string): Promise<any> {
         // check is user exists
-        console.log(id_user);
         const user = await this.usersService.findOne({ id_user: id_user });
-        console.log(user)
         if (!user) {
             throw new BadRequestException({
                 message: `User with id: ${id_user} not found`, // TODO for test only. Remove email from response
@@ -68,6 +63,7 @@ export class AuthService {
         }
     }
 
+    // TODO decompose this method
     public async validateRequest(request: any): Promise<boolean> {
         // is token present in bearer header?
         if (!request.headers?.['authorization']) {
@@ -95,14 +91,15 @@ export class AuthService {
         // hm, authorized only where cross relation user <-> token is duplexy correct, (or redundant?)
         if ((userFromDB.token_id?.toString() !== tokenFromDB._id.toString()) ||
          (userFromDB._id.toString() !== tokenFromDB.user_id?.toString())) {
-            tokenFromDB.remove();
+            await tokenFromDB.remove();
             userFromDB.token_id = null;
-            userFromDB.save();
+            await userFromDB.save();
             throw new UnauthorizedException();
         }
-
+        // TODO for "except singin/logout" transfer below logic to separate middleware (or interseptor? Decorator? )
+        // TODO and add it to specified method of users.contoller only
         tokenFromDB.expireAt = this.tokenService.getDateWithAddedMinutes(new Date(), this.configService.get<number>('TOKEN_LIFETIME_IN_MINUTES'))
-        tokenFromDB.save();
+        await tokenFromDB.save();
         request.user = userFromDB;
 
         return true;

@@ -27,7 +27,7 @@ export class User {
   id_type: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Token', default: null })
-  token_id: Token;
+  token_id: Token | null; // is that same?: token_id?: Token 
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

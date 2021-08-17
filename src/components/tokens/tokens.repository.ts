@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, Schema } from 'mongoose';
+import { Model, Types, Schema, FilterQuery } from 'mongoose';
 import { ITokenCreate } from './interfaces/token-create.interface';
 import { IToken } from './interfaces/token.interface';
 import { Token } from './schemas/token.schema';
@@ -9,33 +9,23 @@ import { Token } from './schemas/token.schema';
 export class TokensRepository {
   constructor(@InjectModel(Token.name) private tokenModel: Model<IToken>) { }
 
-  create(token: ITokenCreate) {
-    return this.tokenModel.create(token);
+  async create(token: ITokenCreate) {
+    return await this.tokenModel.create(token);
   }
 
-  findAll() {
-    return `This action returns all repository`;
+  async findById(id: Types.ObjectId) {
+    return await this.tokenModel.findById(id).exec();
   }
 
-  findById(id: Types.ObjectId) { // TODO remove Schema.Types form everywhere except Schema
-    return this.tokenModel.findById(id).exec();
+  async findOne(fieldValuePair: FilterQuery<IToken>) {
+    return await this.tokenModel.findOne(fieldValuePair).exec();
   }
 
-  findOne(fieldValuePair) {
-    return this.tokenModel.findOne(fieldValuePair).exec();
+  async deleteOne(arg: FilterQuery<IToken>): Promise<any> { // TODO returned type
+    return await this.tokenModel.deleteOne(arg);
   }
 
-  /* update(id: number, updateRepositoryDto: UpdateRepositoryDto) {
-    return `This action updates a #${id} repository`;
-  } */
-
-  remove(id: number) {
-    return `This action removes a #${id} repository`;
-  }
-
-  deleteMany(arg) {
-    console.log('delete all!!!!' + arg)
-    console.log(arg)
-    this.tokenModel.deleteMany({});
+  async deleteMany(arg: FilterQuery<IToken>) {
+    return await this.tokenModel.deleteMany(arg);
   }
 }

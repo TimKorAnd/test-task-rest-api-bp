@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
 import { IAuthUserSignup } from '../auth/interfaces/auth.user-signup.interface';
 import { UsersRepository } from './users.repository';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserIdTypeEnum } from './enums/user.id-type.enum';
 import { IUserCreate } from './interfaces/user-create.interface';
 import { IUser } from './interfaces/user.interface';
-import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
@@ -42,26 +37,14 @@ export class UsersService {
   }
 
   async findOne(fieldValuePair: { [key: string]: any }): Promise<IUser> {
-    console.log(fieldValuePair);
-    /* const v: string = Object.values(fieldValuePair)[0] as string;
-    const value = Types.ObjectId(v);
-    console.log(v);
-    const key = Object.keys(fieldValuePair)[0] as string;
-    console.log({key: value}); */
     return await this.userRepository.findOne(fieldValuePair);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async clearAllUsersToken_id() {
+    return await this.userRepository.clearAllUsersToken_id()
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
 }
 
 

@@ -9,24 +9,16 @@ import { User } from './schemas/user.schema';
 export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: Model<IUser>) { }
 
-  create(user: IUserCreate) {
-    return this.userModel.create(user);
+  async create(user: IUserCreate) {
+    return await this.userModel.create(user);
   }
 
-  findAll() {
-    return `This action returns all repository`;
+  async findOne(fieldValuePair: {[key: string]: any}): Promise<IUser> {
+    return await this.userModel.findOne(fieldValuePair).exec();
   }
 
-  findOne(fieldValuePair: {[key: string]: any}): Promise<IUser> {
-    return this.userModel.findOne(fieldValuePair).exec();
-  }
-
-  /* update(id: number, updateRepositoryDto: UpdateRepositoryDto) {
-    return `This action updates a #${id} repository`;
-  } */
-
-  remove(id: number) {
-    return `This action removes a #${id} repository`;
+  async clearAllUsersToken_id() {
+    return await this.userModel.updateMany({}, { token_id: null });
   }
 
 }

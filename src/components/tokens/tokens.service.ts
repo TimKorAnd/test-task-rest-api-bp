@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TokensRepository } from './tokens.repository';
-import { UpdateTokenDto } from './dto/update-token.dto';
 import { randomBytes } from 'crypto';
-import { Types } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { IToken } from './interfaces/token.interface';
 import { ITokenCreate } from './interfaces/token-create.interface';
 import { ConfigService } from '@nestjs/config';
@@ -17,7 +16,6 @@ export class TokensService {
 ) { }
 
   create(_id: Types.ObjectId, tokenLifetimeInMinutes = this.configService.get<number>('TOKEN_LIFETIME_IN_MINUTES')) { 
-    // console.log(tokenLifetimeInMinutes);
     const tokenCreate: ITokenCreate = {
       user_id: _id,
       token: randomBytes(64).toString('hex'),
@@ -39,19 +37,15 @@ export class TokensService {
     return this.tokensRepository.findById(id);
   }
 
-  findOne(fieldValuePair) { // TODO set types
+  findOne(fieldValuePair: { token: any; }) { // TODO set types
     return this.tokensRepository.findOne(fieldValuePair);
   }
 
-  update(id: number, updateTokenDto: UpdateTokenDto) {
-    return `This action updates a #${id} token`;
+  async deleteOne(arg: FilterQuery<IToken>) { // auto inferred type is bad.(
+    await this.tokensRepository.deleteOne(arg);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} token`;
-  }
-
-  deleteMany(arg) {
-    this.tokensRepository.deleteMany(arg);
+  async deleteMany(arg: FilterQuery<IToken>) {
+    await this.tokensRepository.deleteMany(arg);
   }
 }

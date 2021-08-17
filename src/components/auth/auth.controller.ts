@@ -13,14 +13,12 @@ export class AuthController {
 
   @Post('signup')
   signup(@Body(TransformEmailToLowerCaseAndHashPasswordPipe) signupDto: SignupDto) {
-    console.dir(signupDto); // TODO remove
     return this.authService.signup(signupDto);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   async signin(@Request() req) {
-    console.log('controller signin');
     return req.user;
   }
 

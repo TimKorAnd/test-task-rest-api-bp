@@ -6,5 +6,5 @@ export interface IUser extends Document {
   id_user: string;
   password: string;
   id_type: UserIdTypeEnum;
-  token_id: Types.ObjectId;
+  token_id: Types.ObjectId | null;
 }
